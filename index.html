@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>PronoBaby - Le pari de l'année</title>
+<style>
+  :root{
+    --rouge:#e2001a;
+    --rouge-fonce:#b80016;
+    --jaune:#ffcd00;
+    --jaune-fonce:#e6b800;
+    --vert:#2ecc71;
+    --bleu:#1769ff;
+    --rose:#ff4d94;
+    --gris:#f2f3f5;
+    --gris-bord:#e3e5e9;
+    --texte:#1b1d22;
+    --texte-doux:#6b7280;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  .emo{height:1em;width:1em;vertical-align:-0.14em;margin:0 .02em;display:inline-block;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#d8dadf;
+    color:var(--texte);
+  }
+  .app{
+    max-width:430px;
+    margin:0 auto;
+    background:var(--gris);
+    min-height:100vh;
+    position:relative;
+    padding-bottom:74px;
+    box-shadow:0 0 40px rgba(0,0,0,.15);
+  }
+
+  /* Header */
+  header{
+    background:var(--rouge);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 16px;
+  }
+  .logo{
+    color:#fff;font-weight:800;font-style:italic;font-size:26px;letter-spacing:-.5px;
+    display:flex;align-items:center;gap:2px;
+  }
+  .avatar{
+    width:44px;height:44px;border-radius:50%;object-fit:cover;
+    border:2.5px solid #fff;box-shadow:0 2px 7px rgba(0,0,0,.3);
+  }
+  .connexion{
+    color:#fff;border:1.5px solid rgba(255,255,255,.7);border-radius:22px;
+    padding:9px 18px;font-weight:600;font-size:14px;
+  }
+
+  /* Carte match */
+  .card{
+    background:#fff;margin:12px;border-radius:14px;overflow:hidden;
+    box-shadow:0 1px 3px rgba(0,0,0,.08);
+  }
+  .hero{
+    position:relative;height:130px;
+    background:
+      radial-gradient(120% 120% at 80% 0%, #ff5a6e 0%, var(--rouge) 45%, var(--rouge-fonce) 100%);
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .hero .pitch{
+    position:absolute;inset:0;
+    background:
+      repeating-linear-gradient(90deg, rgba(255,255,255,.06) 0 28px, rgba(255,255,255,0) 28px 56px);
+  }
+  .hero .echo{
+    position:absolute;inset:0;width:100%;height:100%;
+    object-fit:cover;object-position:center 65%;z-index:0;
+  }
+  .hero .scrim{
+    position:absolute;inset:0;z-index:1;
+    background:linear-gradient(to bottom, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,.35) 100%);
+  }
+  .hero .emojis{font-size:54px;letter-spacing:6px;margin-bottom:18px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.25));z-index:1;}
+  .hero .live{
+    position:absolute;bottom:0;left:50%;transform:translate(-50%,50%);
+    background:#111;color:#fff;font-size:12px;font-weight:700;
+    padding:5px 12px;border-radius:14px;display:flex;align-items:center;gap:6px;z-index:3;
+    box-shadow:0 2px 6px rgba(0,0,0,.25);
+  }
+  .hero .live i{width:7px;height:7px;border-radius:50%;background:var(--jaune);display:inline-block;animation:blink 1s infinite;font-style:normal;}
+  @keyframes blink{50%{opacity:.3;}}
+
+  .comp{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:26px 14px 4px;font-size:13px;color:var(--texte-doux);font-weight:600;
+  }
+  .teams{
+    display:flex;align-items:center;gap:10px;position:relative;
+    padding:6px 14px 14px;font-weight:800;font-size:19px;
+  }
+  .teams .side{flex:1;text-align:center;}
+  .teams .when{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    font-size:12px;color:var(--texte-doux);font-weight:600;text-align:center;line-height:1.2;
+    background:#fff;padding:0 6px;
+  }
+
+  /* Boutons cotes */
+  .odds{display:flex;gap:10px;padding:0 14px 14px;}
+  .bet{
+    flex:1;background:var(--jaune);border-radius:10px;padding:12px 8px;text-align:center;
+    cursor:pointer;border:2px solid transparent;transition:transform .08s, box-shadow .15s;
+    position:relative;user-select:none;
+  }
+  .bet:active{transform:scale(.97);}
+  .bet .label{font-size:13px;font-weight:700;color:#5b4a00;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .bet .cote{font-size:22px;font-weight:800;color:#1b1500;margin-top:2px;}
+  .bet .bar{height:4px;border-radius:3px;background:rgba(0,0,0,.12);margin-top:8px;overflow:hidden;}
+  .bet .bar i{display:block;height:100%;background:var(--vert);width:50%;transition:width .5s;}
+  .bet.sel{border-color:#111;box-shadow:0 0 0 3px rgba(0,0,0,.08);}
+  .bet.boy .bar i{background:var(--bleu);}
+  .bet.girl .bar i{background:var(--rose);}
+
+  /* Zone action */
+  .action{margin:0 12px 12px;}
+  .validate{
+    width:100%;background:var(--vert);color:#fff;border:none;border-radius:12px;
+    padding:16px;font-size:16px;font-weight:800;cursor:pointer;
+    box-shadow:0 4px 0 #25a85c;transition:transform .08s, opacity .2s;
+  }
+  .validate:active{transform:translateY(2px);box-shadow:0 2px 0 #25a85c;}
+  .validate:disabled{background:#c7cbd1;box-shadow:0 4px 0 #b0b4ba;cursor:not-allowed;color:#fff;}
+  .hint{text-align:center;color:var(--texte-doux);font-size:13px;margin:10px 4px 0;}
+
+  /* Coupon de pari */
+  .coupon{background:#fff;margin:12px;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.08);overflow:hidden;}
+  .coupon-top{
+    background:#111;color:#fff;padding:12px 16px;display:flex;
+    justify-content:space-between;align-items:center;font-weight:800;font-size:12px;letter-spacing:1.5px;
+  }
+  .coupon-code{
+    font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--jaune);color:#111;
+    padding:3px 8px;border-radius:6px;font-size:12px;letter-spacing:1px;
+  }
+  .coupon-perf{height:0;border-top:2px dashed var(--gris-bord);margin:0 16px;position:relative;}
+  .coupon-perf::before,.coupon-perf::after{
+    content:"";position:absolute;top:-11px;width:22px;height:22px;border-radius:50%;background:var(--gris);
+  }
+  .coupon-perf::before{left:-27px;}
+  .coupon-perf::after{right:-27px;}
+  .coupon-body{padding:6px 18px 16px;}
+  .cp-row{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:9px 0;border-bottom:1px solid var(--gris-bord);font-size:14px;
+  }
+  .cp-row:last-of-type{border-bottom:none;}
+  .cp-row .lab{color:var(--texte-doux);}
+  .cp-row b{font-weight:800;}
+  .t-cote{background:var(--jaune);padding:4px 10px;border-radius:7px;font-weight:800;}
+  .cp-status{
+    margin-top:12px;background:#eafaf0;color:#1c8c4e;font-weight:800;
+    padding:9px;border-radius:9px;font-size:13px;text-align:center;
+  }
+  .reveal-link{
+    display:block;margin-top:16px;color:var(--rouge);font-weight:800;
+    text-decoration:underline;cursor:pointer;font-size:15px;text-align:center;
+  }
+
+  /* Suspense reveal */
+  .suspense{margin-top:16px;padding:24px 16px;border-radius:14px;background:#111;color:#fff;text-align:center;}
+  .suspense .env{font-size:48px;display:inline-block;animation:shake .45s infinite;}
+  @keyframes shake{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);}}
+  .suspense .sub2{margin-top:10px;font-size:14px;opacity:.92;}
+
+  /* Revelation */
+  .reveal-box{
+    margin-top:16px;border-radius:14px;padding:22px 16px;color:#fff;
+    background:linear-gradient(135deg,#1769ff,#3f8cff);
+    animation:pop .4s ease;
+  }
+  @keyframes pop{0%{transform:scale(.8);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  .reveal-box .big{font-size:30px;font-weight:900;margin:6px 0;}
+  .reveal-box .sub{font-size:14px;opacity:.95;}
+
+  /* Ecran prenom */
+  .hero-prenom{
+    background:radial-gradient(120% 120% at 80% 0%, #3fa9ff 0%, #1769ff 50%, #0b3fb0 100%);
+  }
+  .side-full{flex:1;text-align:center;font-size:15px;font-weight:700;color:var(--texte);}
+  .name-input{
+    width:100%;border:2px solid var(--gris-bord);border-radius:12px;
+    padding:14px;font-size:16px;font-weight:600;text-align:center;margin-bottom:10px;outline:none;
+  }
+  .name-input:focus{border-color:var(--bleu);}
+  .board{padding:0;}
+  .board-head{background:#111;color:#fff;padding:12px 16px;font-weight:800;font-size:13px;letter-spacing:.5px;}
+  .board-row{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--gris-bord);}
+  .board-row:last-child{border-bottom:none;}
+  .board-row .rank{width:20px;text-align:center;font-weight:800;color:var(--texte-doux);font-size:14px;}
+  .board-row .nm{flex:1;font-weight:700;}
+  .board-row .pct{font-size:11px;color:var(--texte-doux);white-space:nowrap;}
+  .board-row .ct{background:var(--jaune);padding:4px 10px;border-radius:7px;font-weight:800;font-size:14px;}
+  .board-row.mine{background:#fff7d6;}
+  .board-empty{padding:18px 16px;text-align:center;color:var(--texte-doux);font-size:14px;}
+  .locked{margin-top:14px;background:#111;color:#fff;border-radius:12px;padding:16px;text-align:center;}
+  .locked .lk{font-size:30px;}
+  .locked .lk-t{font-weight:800;margin-top:6px;}
+  .locked .lk-s{font-size:13px;opacity:.85;margin-top:2px;}
+
+  /* Ecran cadeau / liste de naissance */
+  .hero-cadeau{
+    background:radial-gradient(120% 120% at 80% 0%, #ffd86b 0%, #ff9f45 48%, #ff5fa0 100%);
+  }
+  .gift-body{padding:18px 18px 20px;text-align:center;}
+  .gift-title{margin:0 0 8px;font-size:19px;font-weight:800;}
+  .gift-text{margin:0 0 16px;font-size:14px;line-height:1.5;color:var(--texte-doux);}
+  .gift-btn{display:block;text-decoration:none;text-align:center;}
+  .gift-btn.soon{background:#c7cbd1;box-shadow:0 4px 0 #b0b4ba;cursor:default;}
+
+  /* Nav bas */
+  nav{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+    width:100%;max-width:430px;background:#fff;border-top:1px solid var(--gris-bord);
+    display:flex;justify-content:space-around;padding:8px 0 10px;
+  }
+  nav a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--texte-doux);position:relative;}
+  nav a.on{color:var(--rouge);font-weight:700;}
+  nav a .ic{font-size:20px;}
+  nav a{cursor:pointer;}
+  nav a .badge{position:absolute;top:-4px;right:2px;background:var(--rouge);color:#fff;font-size:8px;font-weight:800;padding:1px 4px;border-radius:8px;}
+
+  nav a.locked-tab{opacity:.45;}
+  .toast{
+    position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(10px);
+    background:#111;color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;
+    max-width:90%;text-align:center;z-index:60;opacity:0;transition:opacity .25s, transform .25s;
+    box-shadow:0 4px 16px rgba(0,0,0,.3);pointer-events:none;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .legal{font-size:11px;color:#9aa0a8;text-align:center;padding:6px 24px 16px;line-height:1.4;}
+  .confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:50;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">PronoBaby</div>
+    <img class="avatar" src="fannymax.jpg" alt="Fanny &amp; Maxime"
+         onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'connexion',textContent:'Connexion'}))" />
+  </header>
+
+  <!-- ECRAN 1 : LE MATCH (sexe) -->
+  <div id="screen-match">
+
+  <!-- Carte du match -->
+  <div class="card">
+    <div class="hero">
+      <div class="pitch"></div>
+      <img class="echo" src="echo.jpg" alt="Échographie"
+           onerror="this.style.display='none';document.getElementById('heroFallback').style.display='block';" />
+      <div class="scrim"></div>
+      <div class="emojis" id="heroFallback" style="display:none;">👶</div>
+      <div class="live"><i></i>MATCH EN COURS</div>
+    </div>
+    <div class="comp">
+      <span>🐣 Match sexe Bébé Fanny &amp; Maxime</span>
+    </div>
+    <div class="teams">
+      <span class="side">Garçon 💙</span>
+      <span class="when">Fin octobre<br>2026</span>
+      <span class="side">Fille 💖</span>
+    </div>
+
+    <div class="odds">
+      <div class="bet boy" id="betBoy" onclick="select('garcon')">
+        <div class="label">Garçon 💙</div>
+        <div class="cote" id="coteBoy">2,00</div>
+        <div class="bar"><i id="barBoy" style="width:50%"></i></div>
+      </div>
+      <div class="bet girl" id="betGirl" onclick="select('fille')">
+        <div class="label">Fille 💖</div>
+        <div class="cote" id="coteGirl">2,00</div>
+        <div class="bar"><i id="barGirl" style="width:50%"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone action (vote) -->
+  <div class="action" id="voteZone">
+    <button class="validate" id="validateBtn" disabled onclick="validate()">Choisis ton camp</button>
+    <div class="hint" id="hint">Sélectionne Garçon ou Fille, puis valide ton prono. Un seul prono par personne !</div>
+  </div>
+
+  <!-- Zone confirmee (cachee au depart) -->
+  <div id="doneZone" style="display:none;">
+    <div class="coupon">
+      <div class="coupon-top">
+        <span>🎫 BULLETIN DE PARI</span>
+        <span class="coupon-code" id="couponCode">PB-0000</span>
+      </div>
+      <div class="coupon-perf"></div>
+      <div class="coupon-body">
+        <div class="cp-row"><span class="lab">Évènement</span><b>Sexe Bébé Fanny &amp; Maxime</b></div>
+        <div class="cp-row"><span class="lab">Échéance</span><b>Fin octobre 2026</b></div>
+        <div class="cp-row"><span class="lab">Ton pari</span><b id="tChoice">Garçon 💙</b></div>
+        <div class="cp-row"><span class="lab">Cote</span><b class="t-cote" id="tCote">2,00</b></div>
+        <div class="cp-status">✅ Pari validé. Bonne chance 🍀</div>
+
+        <span class="reveal-link" id="revealLink" onclick="reveal()">🎁 Révéler le résultat</span>
+        <div id="revealHolder"></div>
+      </div>
+    </div>
+  </div>
+
+  </div><!-- /screen-match -->
+
+  <!-- ECRAN 2 : BONUS PRENOM -->
+  <div id="screen-prenom" style="display:none;">
+    <div class="card">
+      <div class="hero hero-prenom">
+        <div class="pitch"></div>
+        <div class="emojis">🍼</div>
+        <div class="live"><i></i>PARI BONUS</div>
+      </div>
+      <div class="comp"><span>🔤 Bonus : le prénom du bébé</span></div>
+      <div class="teams"><span class="side-full">Quel prénom pour le bébé ? 🍼</span></div>
+    </div>
+
+    <div class="action" id="prenomZone">
+      <input id="prenomInput" class="name-input" type="text" maxlength="20"
+             placeholder="Ton prénom préféré..." autocomplete="off" />
+      <button class="validate" id="prenomBtn" onclick="validatePrenom()">Valider mon prénom</button>
+      <div class="hint">Un seul prénom par personne. Résultat fin octobre 2026 !</div>
+    </div>
+
+    <div id="prenomDone" style="display:none;">
+      <div class="coupon">
+        <div class="coupon-top">
+          <span>🎫 BULLETIN BONUS</span>
+          <span class="coupon-code" id="couponCodeP">PB-0000</span>
+        </div>
+        <div class="coupon-perf"></div>
+        <div class="coupon-body">
+          <div class="cp-row"><span class="lab">Pari bonus</span><b>Prénom du bébé</b></div>
+          <div class="cp-row"><span class="lab">Ton prénom</span><b id="myPrenom">—</b></div>
+          <div class="cp-row"><span class="lab">Cote</span><b class="t-cote" id="myPrenomCote">—</b></div>
+          <div class="cp-status">✅ Prénom enregistré. Bonne chance 🍀</div>
+          <div class="locked">
+            <div class="lk">🔒</div>
+            <div class="lk-t">Résultat fin octobre 2026</div>
+            <div class="lk-s">Un peu de patience ! ⏳</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card board">
+      <div class="board-head">🏆 Classement des prénoms</div>
+      <div id="boardList"><div class="board-empty">Chargement...</div></div>
+    </div>
+  </div><!-- /screen-prenom -->
+
+  <!-- ECRAN 3 : CADEAU / LISTE DE NAISSANCE -->
+  <div id="screen-cadeau" style="display:none;">
+    <div class="card">
+      <div class="hero hero-cadeau">
+        <div class="pitch"></div>
+        <div class="emojis">🎁</div>
+        <div class="live"><i></i>LISTE DE NAISSANCE</div>
+      </div>
+      <div class="comp"><span>🎁 Le coin cadeaux</span></div>
+      <div class="gift-body">
+        <h3 class="gift-title">Envie de gâter le bébé ?</h3>
+        <p class="gift-text">Le plus beau des cadeaux, c'est votre présence 🥰. Mais si le cœur vous en dit, une petite liste de naissance arrive très bientôt. Sans aucune obligation, bien sûr !</p>
+        <a id="giftBtn" class="validate gift-btn soon">🎁 Bientôt disponible</a>
+        <div class="hint" id="giftHint">Le lien de la liste arrive très bientôt. Revenez vite !</div>
+      </div>
+    </div>
+  </div><!-- /screen-cadeau -->
+
+  <div class="legal" id="legal">PronoBaby est une idée de Fanny &amp; Maxime, à but festif. Aucun lien avec un opérateur de paris. Jouer comporte des risques... de fondre de bonheur.</div>
+
+  <!-- Nav -->
+  <nav>
+    <a class="on" id="navMatch" onclick="showScreen('match')"><span class="ic">⚽</span>Le Match</a>
+    <a id="navPrenom" onclick="showScreen('prenom')"><span class="ic">🔤</span><span class="badge" id="navPrenomBadge">NEW</span>Prénom</a>
+    <a id="navCadeau" onclick="showScreen('cadeau')"><span class="ic">🎁</span>Cadeau</a>
+  </nav>
+
+</div>
+
+<canvas class="confetti" id="confetti"></canvas>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIG SUPABASE
+   Remplace les 2 valeurs ci-dessous par celles de ton projet
+   (voir le guide INSTALLATION.md). Tant que tu ne le fais pas,
+   l'app fonctionne en mode demo (votes stockes sur ton appareil).
+   ============================================================ */
+const SUPABASE_URL  = "https://fvgtmsuldqguqlqlxhxr.supabase.co";
+const SUPABASE_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ2Z3Rtc3VsZHFndXFscWx4aHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3ODU2MTIsImV4cCI6MjA5NzM2MTYxMn0.DAvTM0mEqSt-1d54DbJqM-tDny7ZFVdJTkxN591BrJM";
+
+/* === Le resultat reel (cache jusqu'au reveal) === */
+const RESULTAT = "garcon"; // "garcon" ou "fille"
+
+/* === Lien de la liste de naissance ===
+   Laisse vide ("") pour afficher "bientot disponible".
+   Mets l'URL quand tu l'as, ex: "https://www.maliste.fr/xxxx" */
+const LISTE_URL = "";
+
+/* ============================================================ */
+
+/* ============================================================
+   EMOJIS APPLE PARTOUT
+   Chaque emoji est remplace par l'image Apple correspondante
+   (CDN jsDelivr). Double essai sur le nom de fichier, et si
+   l'image ne charge pas -> on garde l'emoji natif. Rendu Apple
+   identique sur iPhone, Android et PC.
+   ============================================================ */
+const EMOJI_BASE = "https://cdn.jsdelivr.net/npm/emoji-datasource-apple@16.0.0/img/apple/64/";
+function emojiRe(){ return /\p{Extended_Pictographic}(️|‍\p{Extended_Pictographic})*/gu; }
+function cps(e, keepVS){
+  return [...e].filter(c => keepVS || c !== "️")
+               .map(c => c.codePointAt(0).toString(16)).join("-");
+}
+function emojify(root){
+  if(!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      const p = n.parentNode;
+      if(!p) return NodeFilter.FILTER_REJECT;
+      if(p.nodeName === "SCRIPT" || p.nodeName === "STYLE") return NodeFilter.FILTER_REJECT;
+      if(p.classList && p.classList.contains("emo-wrap")) return NodeFilter.FILTER_REJECT;
+      return emojiRe().test(n.nodeValue || "") ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+  const nodes = []; let nn; while(nn = walker.nextNode()) nodes.push(nn);
+  nodes.forEach(node => {
+    const txt = node.nodeValue, frag = document.createDocumentFragment();
+    const re = emojiRe(); let last = 0, m;
+    while(m = re.exec(txt)){
+      if(m.index > last) frag.appendChild(document.createTextNode(txt.slice(last, m.index)));
+      const native = m[0];
+      const span = document.createElement("span"); span.className = "emo-wrap";
+      const img = document.createElement("img");
+      img.className = "emo"; img.alt = native; img.draggable = false;
+      const withVS = EMOJI_BASE + cps(native, true)  + ".png";
+      const noVS   = EMOJI_BASE + cps(native, false) + ".png";
+      img.src = withVS;
+      img.onerror = function(){
+        if(this.src === withVS && noVS !== withVS){ this.src = noVS; }
+        else { span.replaceWith(document.createTextNode(native)); }
+      };
+      span.appendChild(img); frag.appendChild(span);
+      last = m.index + native.length;
+    }
+    if(last < txt.length) frag.appendChild(document.createTextNode(txt.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+const useSupabase = !SUPABASE_URL.includes("REMPLACE_MOI") && !SUPABASE_KEY.includes("REMPLACE_MOI");
+let selected = null;
+let hasVoted = localStorage.getItem("pronobaby_voted");
+let myChoice = localStorage.getItem("pronobaby_choice");
+
+/* ---- Calcul des cotes (style pari-mutuel, lissage de Laplace) ---- */
+function computeOdds(boy, girl){
+  const total = boy + girl;
+  // cote = (total + 2) / (count + 1)  -> 0/0 donne 2.00 / 2.00
+  const cBoy  = (total + 2) / (boy + 1);
+  const cGirl = (total + 2) / (girl + 1);
+  return {
+    total, boy, girl,
+    coteBoy: cBoy, coteGirl: cGirl,
+    shareBoy: total ? boy/total*100 : 50,
+    shareGirl: total ? girl/total*100 : 50
+  };
+}
+const fmt = n => n.toFixed(2).replace(".", ",");
+
+/* ---- Affichage ---- */
+function render(o){
+  document.getElementById("coteBoy").textContent  = fmt(o.coteBoy);
+  document.getElementById("coteGirl").textContent = fmt(o.coteGirl);
+  document.getElementById("barBoy").style.width   = o.shareBoy + "%";
+  document.getElementById("barGirl").style.width  = o.shareGirl + "%";
+
+  if(myChoice){
+    document.getElementById("tChoice").textContent = myChoice === "garcon" ? "Garçon 💙" : "Fille 💖";
+    document.getElementById("tCote").textContent   = fmt(myChoice === "garcon" ? o.coteBoy : o.coteGirl);
+  }
+}
+
+/* ---- Code de coupon (deterministe par appareil) ---- */
+function couponCode(){
+  let c = localStorage.getItem("pronobaby_code");
+  if(!c){
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    c = "PB-" + Array.from({length:5}, () => chars[Math.floor(Math.random()*chars.length)]).join("");
+    localStorage.setItem("pronobaby_code", c);
+  }
+  return c;
+}
+
+/* ---- Stockage : Supabase ou local ---- */
+async function getCounts(){
+  if(useSupabase){
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/votes?select=choice`, {
+      headers:{ apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY }
+    });
+    const rows = await res.json();
+    let boy=0, girl=0;
+    rows.forEach(r => r.choice==="garcon" ? boy++ : girl++);
+    return {boy, girl};
+  } else {
+    return {
+      boy:  parseInt(localStorage.getItem("pb_boy")  || "0"),
+      girl: parseInt(localStorage.getItem("pb_girl") || "0")
+    };
+  }
+}
+async function addVote(choice){
+  if(useSupabase){
+    await fetch(`${SUPABASE_URL}/rest/v1/votes`, {
+      method:"POST",
+      headers:{ apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY,
+                "Content-Type":"application/json", Prefer:"return=minimal" },
+      body: JSON.stringify({ choice })
+    });
+  } else {
+    const key = choice==="garcon" ? "pb_boy" : "pb_girl";
+    localStorage.setItem(key, (parseInt(localStorage.getItem(key)||"0")+1).toString());
+  }
+}
+
+/* ---- Interactions ---- */
+function select(choice){
+  if(hasVoted) return;
+  selected = choice;
+  document.getElementById("betBoy").classList.toggle("sel", choice==="garcon");
+  document.getElementById("betGirl").classList.toggle("sel", choice==="fille");
+  const btn = document.getElementById("validateBtn");
+  btn.disabled = false;
+  btn.textContent = "Valider mon prono : " + (choice==="garcon" ? "Garçon 💙" : "Fille 💖");
+  emojify(btn);
+}
+
+async function validate(){
+  if(!selected || hasVoted) return;
+  const btn = document.getElementById("validateBtn");
+  btn.disabled = true; btn.textContent = "Enregistrement...";
+  await addVote(selected);
+  localStorage.setItem("pronobaby_voted","1");
+  localStorage.setItem("pronobaby_choice", selected);
+  hasVoted = "1"; myChoice = selected;
+  await refreshAndShowDone();
+  refreshPrenomLock();
+  toast("Onglet Prénom débloqué ! 🔓");
+}
+
+async function refreshAndShowDone(){
+  const c = await getCounts();
+  render(computeOdds(c.boy, c.girl));
+  document.getElementById("couponCode").textContent = couponCode();
+  document.getElementById("voteZone").style.display = "none";
+  document.getElementById("doneZone").style.display = "block";
+  // verrouille les boutons de cote
+  document.getElementById("betBoy").onclick = null;
+  document.getElementById("betGirl").onclick = null;
+  document.getElementById("betBoy").style.opacity = myChoice==="garcon" ? "1" : ".5";
+  document.getElementById("betGirl").style.opacity = myChoice==="fille" ? "1" : ".5";
+}
+
+let revealed = localStorage.getItem("pronobaby_revealed");
+function resultHTML(){
+  const win = (myChoice === RESULTAT);
+  const isBoy = RESULTAT === "garcon";
+  const grad = isBoy ? "linear-gradient(135deg,#1769ff,#3f8cff)" : "linear-gradient(135deg,#ff4d94,#ff7eb3)";
+  return `
+    <div class="reveal-box" style="background:${grad}">
+      <div class="sub">Et le résultat officiel est...</div>
+      <div class="big">${isBoy ? "C'est un GARÇON 💙" : "C'est une FILLE 💖"}</div>
+      <div class="sub">${win ? "🎉 Bravo, ton prono est gagnant !" : "Dommage, ton prono était perdant... mais quel beau lot de consolation 🥰"}</div>
+    </div>`;
+}
+function reveal(instant){
+  document.getElementById("revealLink").style.display = "none";
+  const holder = document.getElementById("revealHolder");
+  const showResult = () => { holder.innerHTML = resultHTML(); emojify(holder); launchConfetti(); };
+  localStorage.setItem("pronobaby_revealed","1");
+  if(instant){ showResult(); return; }
+  holder.innerHTML = `
+    <div class="suspense">
+      <div class="env">✉️</div>
+      <div class="sub2">Ouverture de l'enveloppe... 🥁</div>
+    </div>`;
+  emojify(holder);
+  setTimeout(showResult, 2200);
+}
+
+/* ===== PARI BONUS : PRENOM (champ libre) ===== */
+let prenomDone = localStorage.getItem("pronobaby_prenom_done");
+
+function keyName(s){ return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").trim(); }
+function cleanName(raw){
+  const n = raw.trim().replace(/\s+/g," ");
+  return n.split(" ").map(w => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w).join(" ");
+}
+
+async function getNames(){
+  if(useSupabase){
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/names?select=name`, {
+      headers:{ apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY }
+    });
+    const rows = await res.json();
+    return rows.map(x => x.name);
+  } else {
+    return JSON.parse(localStorage.getItem("pb_names") || "[]");
+  }
+}
+async function addName(name){
+  if(useSupabase){
+    await fetch(`${SUPABASE_URL}/rest/v1/names`, {
+      method:"POST",
+      headers:{ apikey:SUPABASE_KEY, Authorization:"Bearer "+SUPABASE_KEY,
+                "Content-Type":"application/json", Prefer:"return=minimal" },
+      body: JSON.stringify({ name })
+    });
+  } else {
+    const arr = JSON.parse(localStorage.getItem("pb_names") || "[]");
+    arr.push(name); localStorage.setItem("pb_names", JSON.stringify(arr));
+  }
+}
+
+function groupNames(list){
+  const map = new Map();
+  list.forEach(n => {
+    const k = keyName(n);
+    if(!k) return;
+    if(!map.has(k)) map.set(k, { name: cleanName(n), count: 0 });
+    map.get(k).count++;
+  });
+  const arr = [...map.values()];
+  const total = arr.reduce((s,x) => s + x.count, 0);
+  arr.forEach(x => x.cote = total ? total / x.count : 1);
+  arr.sort((a,b) => b.count - a.count || a.name.localeCompare(b.name));
+  return { arr, total };
+}
+
+async function renderBoard(){
+  const { arr, total } = groupNames(await getNames());
+  const myKey = prenomDone ? keyName(localStorage.getItem("pronobaby_prenom_value") || "") : null;
+  const el = document.getElementById("boardList");
+  if(arr.length === 0){
+    el.innerHTML = `<div class="board-empty">Personne n'a encore proposé de prénom. Sois le premier ! 🍼</div>`;
+    emojify(el);
+    return;
+  }
+  el.innerHTML = arr.slice(0,12).map((x,i) => {
+    const pct  = total ? Math.round(x.count/total*100) : 0;
+    const mine = (myKey && keyName(x.name) === myKey) ? " mine" : "";
+    return `<div class="board-row${mine}">
+      <span class="rank">${i+1}</span>
+      <span class="nm">${x.name}</span>
+      <span class="pct">${x.count} prono${x.count>1?"s":""} · ${pct}%</span>
+      <span class="ct">${fmt(x.cote)}</span>
+    </div>`;
+  }).join("");
+  emojify(el);
+  if(prenomDone){
+    const me = arr.find(x => keyName(x.name) === myKey);
+    if(me) document.getElementById("myPrenomCote").textContent = fmt(me.cote);
+  }
+}
+
+function showPrenomDone(name){
+  document.getElementById("prenomZone").style.display = "none";
+  document.getElementById("prenomDone").style.display = "block";
+  document.getElementById("myPrenom").textContent = name;
+  document.getElementById("couponCodeP").textContent = couponCode();
+  emojify(document.getElementById("prenomDone"));
+}
+
+async function validatePrenom(){
+  if(prenomDone) return;
+  const input = document.getElementById("prenomInput");
+  if(!input.value.trim()){ input.focus(); return; }
+  const name = cleanName(input.value);
+  const btn = document.getElementById("prenomBtn");
+  btn.disabled = true; btn.textContent = "Enregistrement...";
+  await addName(name);
+  localStorage.setItem("pronobaby_prenom_done","1");
+  localStorage.setItem("pronobaby_prenom_value", name);
+  prenomDone = "1";
+  showPrenomDone(name);
+  await renderBoard();
+}
+
+/* ===== Verrouillage de l'onglet Prenom ===== */
+function refreshPrenomLock(){
+  const tab   = document.getElementById("navPrenom");
+  const badge = document.getElementById("navPrenomBadge");
+  if(hasVoted){
+    tab.classList.remove("locked-tab");
+    badge.textContent = "NEW";
+  } else {
+    tab.classList.add("locked-tab");
+    badge.textContent = "🔒";
+  }
+}
+
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  emojify(el);
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+/* ===== Coin cadeaux / liste de naissance ===== */
+function setupGift(){
+  const btn  = document.getElementById("giftBtn");
+  const hint = document.getElementById("giftHint");
+  if(LISTE_URL && !LISTE_URL.includes("REMPLACE")){
+    btn.textContent = "🎁 Voir la liste de naissance";
+    btn.classList.remove("soon");
+    btn.href = LISTE_URL; btn.target = "_blank"; btn.rel = "noopener";
+    hint.textContent = "Sans aucune obligation d'achat 💛";
+  } else {
+    btn.textContent = "🎁 Bientôt disponible";
+    btn.classList.add("soon");
+    btn.removeAttribute("href");
+    hint.textContent = "Le lien de la liste arrive très bientôt. Revenez vite !";
+  }
+}
+
+/* ===== Navigation entre ecrans ===== */
+const SCREENS = {
+  match:  { screen:"screen-match",  nav:"navMatch"  },
+  prenom: { screen:"screen-prenom", nav:"navPrenom" },
+  cadeau: { screen:"screen-cadeau", nav:"navCadeau" }
+};
+function showScreen(name){
+  if(name === "prenom" && !hasVoted){
+    toast("Fais d'abord ton prono sur Le Match 😉");
+    return;
+  }
+  Object.entries(SCREENS).forEach(([k, v]) => {
+    document.getElementById(v.screen).style.display = (k === name) ? "block" : "none";
+    document.getElementById(v.nav).classList.toggle("on", k === name);
+  });
+  document.getElementById("legal").style.display = (name === "cadeau") ? "none" : "block";
+  window.scrollTo(0,0);
+}
+
+/* ---- Confettis ---- */
+function launchConfetti(){
+  const cv = document.getElementById("confetti"), ctx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight;
+  const cols = ["#1769ff","#ffcd00","#e2001a","#2ecc71","#ff4d94","#fff"];
+  let parts = Array.from({length:140}, () => ({
+    x:Math.random()*cv.width, y:-20-Math.random()*cv.height,
+    s:6+Math.random()*8, c:cols[Math.floor(Math.random()*cols.length)],
+    v:2+Math.random()*4, a:Math.random()*Math.PI, r:(Math.random()-.5)*.3
+  }));
+  let frames=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    parts.forEach(p=>{ p.y+=p.v; p.x+=Math.sin(p.a)*1.5; p.a+=p.r;
+      ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.s,p.s*0.6); });
+    frames++;
+    if(frames<260) requestAnimationFrame(loop); else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ---- Init ---- */
+(async function init(){
+  emojify(document.body); // emojis Apple tout de suite (contenu statique)
+  const c = await getCounts();
+  render(computeOdds(c.boy, c.girl));
+  if(hasVoted){
+    selected = myChoice;
+    await refreshAndShowDone();
+    if(revealed) reveal(true);
+  }
+
+  // Ecrans bonus
+  setupGift();
+  refreshPrenomLock();
+  if(prenomDone) showPrenomDone(localStorage.getItem("pronobaby_prenom_value") || "");
+  await renderBoard();
+
+  // Emojis Apple sur toute la page
+  emojify(document.body);
+})();
+</script>
+</body>
+</html>
